@@ -20,10 +20,10 @@ curl -L -o anysearch-skill.zip https://github.com/anysearch-ai/anysearch-skill/a
 unzip anysearch-skill.zip
 
 # Move to your agent's skill directory (example paths below, adjust for your agent)
-# Claude Code:    mv anysearch-skill-2.0.0 ~/.claude/skills/anysearch
-# OpenCode:       mv anysearch-skill-2.0.0 ~/.opencode/skills/anysearch
-# Cursor/Windsurf: mv anysearch-skill-2.0.0 <project>/.skills/anysearch
-# Generic:        mv anysearch-skill-2.0.0 <your_agent_skill_dir>/anysearch
+# Claude Code:    mv anysearch-skill ~/.claude/skills/anysearch
+# OpenCode:       mv anysearch-skill ~/.opencode/skills/anysearch
+# Cursor/Windsurf: mv anysearch-skill <project>/.skills/anysearch
+# Generic:        mv anysearch-skill <your_agent_skill_dir>/anysearch
 ```
 
 ### For Humans
