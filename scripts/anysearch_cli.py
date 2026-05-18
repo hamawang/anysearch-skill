@@ -17,6 +17,15 @@ ENDPOINT = "https://api.anysearch.com/mcp"
 REST_SEARCH_ENDPOINT = "https://api.anysearch.com/v1/search"
 
 def _load_env():
+    """Load API keys from .env files near the skill.
+
+    The documented priority is:
+    --api_key > .env file > environment variable > anonymous.
+
+    Use utf-8-sig so .env files saved by Windows Notepad with a BOM are parsed
+    correctly. The .env value intentionally overrides an existing environment
+    variable to match the documented priority order.
+    """
     script_dir = os.path.dirname(os.path.abspath(__file__))
     for env_path in [os.path.join(script_dir, ".env"), os.path.join(script_dir, "..", ".env")]:
         if os.path.isfile(env_path):
@@ -28,9 +37,9 @@ def _load_env():
                     if "=" not in line:
                         continue
                     key, _, value = line.partition("=")
-                    key = key.strip().lstrip("\ufeff")
+                    key = key.strip().lstrip(chr(0xFEFF))
                     value = value.strip().strip("\"'").strip()
-                   if key and value:
+                    if key and value:
                         os.environ[key] = value
 
 
@@ -59,7 +68,29 @@ def _build_headers(api_key: str) -> dict:
         headers["Authorization"] = f"Bearer {api_key}"
     return headers
 
+
+def _build_rest_headers(api_key: str) -> dict:
+    """Build headers for the documented REST search endpoint.
+
+    The bundled MCP helper keeps using _build_headers(). The search command uses
+    /v1/search directly, so it sends explicit REST-friendly headers.
+    """
+    headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "User-Agent": "AnySearch-CLI/2.0.0",
+    }
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
+    return headers
+
+
 def _normalize_rest_response(data: dict) -> dict:
+    """Normalize supported REST response shapes for CLI output.
+
+    Some responses are returned directly as {"results": ..., "metadata": ...};
+    others are wrapped as {"code": 0, "message": "success", "data": ...}.
+    """
     if isinstance(data, dict) and "code" in data:
         if data.get("code") != 0:
             return data
@@ -70,6 +101,11 @@ def _normalize_rest_response(data: dict) -> dict:
 
 
 def _call_search_api(arguments: dict, api_key: str) -> str:
+    """Call the documented REST /v1/search endpoint for CLI search.
+
+    This keeps the search verification command lightweight and avoids sending a
+    direct JSON-RPC tools/call request to the MCP endpoint.
+    """
     body = {"query": arguments["query"]}
 
     if arguments.get("max_results") is not None:
