@@ -15,12 +15,20 @@ if sys.stderr.encoding != "utf-8":
 
 ENDPOINT = "https://api.anysearch.com/mcp"
 
-
 def _load_env():
+    """Load API keys from .env files near the skill.
+
+    The documented priority is:
+    --api_key > .env file > environment variable > anonymous.
+
+    Use utf-8-sig so .env files saved by Windows Notepad with a BOM are parsed
+    correctly. The .env value intentionally overrides an existing environment
+    variable to match the documented priority order.
+    """
     script_dir = os.path.dirname(os.path.abspath(__file__))
     for env_path in [os.path.join(script_dir, ".env"), os.path.join(script_dir, "..", ".env")]:
         if os.path.isfile(env_path):
-            with open(env_path, "r", encoding="utf-8") as f:
+            with open(env_path, "r", encoding="utf-8-sig") as f:
                 for line in f:
                     line = line.strip()
                     if not line or line.startswith("#"):
@@ -28,9 +36,9 @@ def _load_env():
                     if "=" not in line:
                         continue
                     key, _, value = line.partition("=")
-                    key = key.strip()
-                    value = value.strip().strip("\"'")
-                    if key not in os.environ:
+                    key = key.strip().lstrip(chr(0xFEFF))
+                    value = value.strip().strip("\"'").strip()
+                    if key and value:
                         os.environ[key] = value
 
 
@@ -58,7 +66,6 @@ def _build_headers(api_key: str) -> dict:
     if api_key:
         headers["Authorization"] = f"Bearer {api_key}"
     return headers
-
 
 def _call_api(tool_name: str, arguments: dict, api_key: str) -> str:
     payload = {
