@@ -21,7 +21,7 @@ unzip anysearch-skill.zip
 
 # Move to your agent's skill directory (example paths below, adjust for your agent)
 # Claude Code:    mv anysearch-skill ~/.claude/skills/anysearch
-# OpenCode:       mv anysearch-skill ~/.opencode/skills/anysearch
+# OpenCode:       mv anysearch-skill ~/.config/opencode/skills/anysearch
 # Cursor/Windsurf: mv anysearch-skill <project>/.skills/anysearch
 # Generic:        mv anysearch-skill <your_agent_skill_dir>/anysearch
 # Shared agents:  mv anysearch-skill ~/.agents/skills/anysearch
