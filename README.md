@@ -154,6 +154,19 @@ echo "Command: bash <skill_dir>/scripts/anysearch_cli.sh" >> <skill_dir>/runtime
 
 **Important:** Runtime preferences are stored in `runtime.conf`, NOT in SKILL.md. The agent reads `runtime.conf` on skill load to determine the active CLI. If the file is missing or corrupted, the agent falls back to the Platform Detection procedure in SKILL.md. If `runtime.conf` already exists, replace it instead of appending.
 
+### Routine agent usage
+
+After `runtime.conf` exists, agents should use the stored `Command` directly for routine calls instead of running `doc` before every search. For example, if `runtime.conf` contains `Command: python3 <skill_dir>/scripts/anysearch_cli.py`, use:
+
+```bash
+python3 <skill_dir>/scripts/anysearch_cli.py search "query" --max_results 5
+python3 <skill_dir>/scripts/anysearch_cli.py batch_search --queries '[{"query":"q1","max_results":5},{"query":"q2","max_results":5}]'
+python3 <skill_dir>/scripts/anysearch_cli.py extract "https://example.com/page"
+python3 <skill_dir>/scripts/anysearch_cli.py extract --url "https://example.com/page"
+```
+
+`extract` output is already Markdown. Do not pass `--format markdown`, `--format json`, or `--markdown`; the extract command only accepts the URL positional argument or `--url`/`-u`. If a subcommand argument is unclear or fails, run `<command> <subcommand> --help` for that subcommand rather than the full `doc` command.
+
 ### Step 4 (optional): Test a real search
 
 ```bash
